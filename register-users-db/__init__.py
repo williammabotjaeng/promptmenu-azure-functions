@@ -1,14 +1,18 @@
 import logging
 import hashlib
 import json
-from decouple import config
+from dotenv import load_dotenv
+import os
 import azure.functions as func
 from pymongo import MongoClient
 
-# Load environment variables using python-decouple
-COSMOS_DB_CONNECTION_STRING = config("COSMOS_DB_CONNECTION_STRING")
-DATABASE_NAME = config("DATABASE_NAME", default="UserDatabase")
-CONTAINER_NAME = config("CONTAINER_NAME", default="Users")
+# Load environment variables from .env file
+load_dotenv()
+
+# Load environment variables
+COSMOS_DB_CONNECTION_STRING = os.getenv("COSMOS_DB_CONNECTION_STRING")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "UserDatabase")
+CONTAINER_NAME = os.getenv("CONTAINER_NAME", "Users")
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Processing HTTP request to create a user.')
