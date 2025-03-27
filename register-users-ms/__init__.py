@@ -16,22 +16,55 @@ import os
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Processing Entra ID-first user registration request.")
     
-    # Get Azure AD configuration from app settings
-    tenant_id = os.environ["AZ_TENANT_ID"]
-    client_id = os.environ["AZ_CLIENT_ID"]
-    client_secret = os.environ["AZ_CLIENT_SECRET"]
-    graph_api_scope = ["https://graph.microsoft.com/.default"]
-    graph_api_endpoint = "https://graph.microsoft.com/v1.0/users"
-    
-    # Database configuration
-    cosmos_db_connection_string = os.environ["COSMOS_DB_CONNECTION_STRING"]
-    database_name = os.environ.get("DATABASE_NAME", "UserDatabase")
-    container_name = os.environ.get("CONTAINER_NAME", "Users")
-    
-    # Your verified domain from Azure AD
-    verified_domain = "infotheappspaza.onmicrosoft.com"
-    
     try:
+        # Get Azure AD configuration from app settings with fallbacks
+        # This will work with either environment variables or .env file using python-dotenv
+        try:
+            # Try to import dotenv and load from .env file
+            from dotenv import load_dotenv
+            load_dotenv()
+            logging.info("Loaded environment variables from .env file")
+        except ImportError:
+            logging.info("python-dotenv not installed, using environment variables directly")
+        except Exception as e:
+            logging.warning(f"Could not load .env file: {str(e)}")
+        
+        # Get required configuration with fallbacks to handle missing values gracefully
+        tenant_id = os.environ.get("AZ_TENANT_ID")
+        client_id = os.environ.get("AZ_CLIENT_ID")
+        client_secret = os.environ.get("AZ_CLIENT_SECRET")
+        cosmos_db_connection_string = os.environ.get("COSMOS_DB_CONNECTION_STRING")
+        
+        # Check for missing required configuration
+        missing_config = []
+        if not tenant_id:
+            missing_config.append("AZ_TENANT_ID")
+        if not client_id:
+            missing_config.append("AZ_CLIENT_ID")
+        if not client_secret:
+            missing_config.append("AZ_CLIENT_SECRET")
+        if not cosmos_db_connection_string:
+            missing_config.append("COSMOS_DB_CONNECTION_STRING")
+            
+        if missing_config:
+            error_message = f"Missing required configuration: {', '.join(missing_config)}"
+            logging.error(error_message)
+            return func.HttpResponse(
+                json.dumps({"error": error_message}),
+                status_code=500,
+                mimetype="application/json"
+            )
+        
+        graph_api_scope = ["https://graph.microsoft.com/.default"]
+        graph_api_endpoint = "https://graph.microsoft.com/v1.0/users"
+        
+        # Database configuration
+        database_name = os.environ.get("DATABASE_NAME", "UserDatabase")
+        container_name = os.environ.get("CONTAINER_NAME", "Users")
+        
+        # Your verified domain from Azure AD
+        verified_domain = "infotheappspaza.onmicrosoft.com"
+        
         # Parse the request body
         req_body = req.get_json()
         

@@ -16,22 +16,62 @@ import os
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Processing HTTP request for database-first user registration.')
     
-    # Load environment variables
-    cosmos_db_connection_string = os.environ["COSMOS_DB_CONNECTION_STRING"]
-    database_name = os.environ.get("DATABASE_NAME", "UserDatabase")
-    container_name = os.environ.get("CONTAINER_NAME", "Users")
-    
-    # Get Azure AD configuration from app settings
-    tenant_id = os.environ["AZ_TENANT_ID"]
-    client_id = os.environ["AZ_CLIENT_ID"]
-    client_secret = os.environ["AZ_CLIENT_SECRET"]
-    graph_api_scope = ["https://graph.microsoft.com/.default"]
-    graph_api_endpoint = "https://graph.microsoft.com/v1.0/users"
-    
-    # Your verified domain from Azure AD
-    verified_domain = "infotheappspaza.onmicrosoft.com"
-    
     try:
+        # Try to import dotenv and load from .env file
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+            logging.info("Loaded environment variables from .env file")
+        except ImportError:
+            logging.info("python-dotenv not installed, using environment variables directly")
+        except Exception as e:
+            logging.warning(f"Could not load .env file: {str(e)}")
+        
+        # Load environment variables with fallbacks
+        cosmos_db_connection_string = os.environ.get("COSMOS_DB_CONNECTION_STRING")
+        database_name = os.environ.get("DATABASE_NAME", "UserDatabase")
+        container_name = os.environ.get("CONTAINER_NAME", "Users")
+        
+        # Get Azure AD configuration from app settings
+        tenant_id = os.environ.get("AZ_TENANT_ID")
+        client_id = os.environ.get("AZ_CLIENT_ID")
+        client_secret = os.environ.get("AZ_CLIENT_SECRET")
+        
+        # Check for missing required configuration
+        missing_config = []
+        if not cosmos_db_connection_string:
+            missing_config.append("COSMOS_DB_CONNECTION_STRING")
+        
+        # Entra ID config is optional for this function as we'll fall back to database-only registration
+        entra_id_available = True
+        if not tenant_id:
+            missing_config.append("AZ_TENANT_ID")
+            entra_id_available = False
+        if not client_id:
+            missing_config.append("AZ_CLIENT_ID")
+            entra_id_available = False
+        if not client_secret:
+            missing_config.append("AZ_CLIENT_SECRET")
+            entra_id_available = False
+            
+        if "COSMOS_DB_CONNECTION_STRING" in missing_config:
+            error_message = f"Missing required database configuration: {', '.join(missing_config)}"
+            logging.error(error_message)
+            return func.HttpResponse(
+                json.dumps({"error": error_message}),
+                status_code=500,
+                mimetype="application/json"
+            )
+        
+        if not entra_id_available:
+            logging.warning(f"Entra ID registration will be skipped due to missing config: {', '.join(missing_config)}")
+        
+        graph_api_scope = ["https://graph.microsoft.com/.default"]
+        graph_api_endpoint = "https://graph.microsoft.com/v1.0/users"
+        
+        # Your verified domain from Azure AD
+        verified_domain = "infotheappspaza.onmicrosoft.com"
+        
         # Parse the request body
         req_body = req.get_json()
         
@@ -69,7 +109,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=400,
                 mimetype="application/json"
             )
-        
+
+        # The rest of your function code remains unchanged...
+        # [Continue with the existing implementation from here]
+
         # Hash the password for database storage
         hashed_password = hashlib.sha256(req_body["password"].encode()).hexdigest()
         
