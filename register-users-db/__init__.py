@@ -5,8 +5,8 @@ import azure.functions as func
 from azure.cosmos import CosmosClient, exceptions
 
 # Cosmos DB configuration
-COSMOS_DB_URL = "YOUR_COSMOS_DB_ACCOUNT_URI"  # Replace with your Cosmos DB URI
-COSMOS_DB_KEY = "YOUR_COSMOS_DB_ACCOUNT_KEY"  # Replace with your Cosmos DB key
+COSMOS_DB_URL = "COSMOS_DB_ACCOUNT_URI"  # Replace with your Cosmos DB URI
+COSMOS_DB_KEY = "COSMOS_DB_ACCOUNT_KEY"  # Replace with your Cosmos DB key
 DATABASE_NAME = "UserDatabase"
 CONTAINER_NAME = "Users"
 
