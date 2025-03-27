@@ -2,11 +2,19 @@ import logging
 import hashlib
 import json
 import os
+from dotenv import load_dotenv
 import azure.functions as func
 from azure.cosmos import CosmosClient, exceptions
 
+# Load environment variables
+load_dotenv()
+
 # Load the Cosmos DB connection string from environment variables
 COSMOS_DB_CONNECTION_STRING = os.getenv("COSMOS_DB_CONNECTION_STRING")
+if not COSMOS_DB_CONNECTION_STRING:
+    logging.error("COSMOS_DB_CONNECTION_STRING is not set or is empty.")
+    raise ValueError("COSMOS_DB_CONNECTION_STRING environment variable is required.")
+
 DATABASE_NAME = "UserDatabase"
 CONTAINER_NAME = "Users"
 
@@ -22,9 +30,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         ]
 
         # Validate required fields
-        if not all(field in req_body for field in required_fields):
+        if not all(field in req_body and req_body[field] for field in required_fields):
+            missing_fields = [field for field in required_fields if field not in req_body or not req_body[field]]
+            logging.error(f"Missing or invalid fields: {missing_fields}")
             return func.HttpResponse(
-                "Missing required fields in the payload.",
+                f"Missing or invalid fields: {', '.join(missing_fields)}",
                 status_code=400
             )
 
@@ -45,6 +55,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         }
 
         # Connect to Cosmos DB using the connection string
+        logging.info("Connecting to Cosmos DB...")
         client = CosmosClient.from_connection_string(COSMOS_DB_CONNECTION_STRING)
         database = client.create_database_if_not_exists(DATABASE_NAME)
         container = database.create_container_if_not_exists(
@@ -53,6 +64,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
         # Insert the user data into Cosmos DB
+        logging.info("Inserting user data into Cosmos DB...")
         container.create_item(body=user_data)
 
         return func.HttpResponse(
