@@ -5,9 +5,9 @@ from msal import ConfidentialClientApplication
 import azure.functions as func
 
 # Azure AD B2C Configuration
-TENANT_ID = "YOUR_TENANT_ID"  # Replace with your Azure AD B2C Tenant ID
-CLIENT_ID = "YOUR_CLIENT_ID"  # Replace with your Azure AD B2C Application (Client) ID
-CLIENT_SECRET = "YOUR_CLIENT_SECRET"  # Replace with your Azure AD B2C Client Secret
+TENANT_ID = "AZ_TENANT_ID"  # Replace with your Azure AD B2C Tenant ID
+CLIENT_ID = "AZ_CLIENT_ID"  # Replace with your Azure AD B2C Application (Client) ID
+CLIENT_SECRET = "AZ_CLIENT_SECRET"  # Replace with your Azure AD B2C Client Secret
 GRAPH_API_SCOPE = ["https://graph.microsoft.com/.default"]
 GRAPH_API_ENDPOINT = "https://graph.microsoft.com/v1.0/users"
 
