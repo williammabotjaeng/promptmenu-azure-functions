@@ -49,9 +49,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "userType": req_body["userType"]
         }
 
-        # Connect to Cosmos DB using pymongo
+        # Connect to Cosmos DB using pymongo with increased timeout
         logging.info("Connecting to Cosmos DB (MongoDB API)...")
-        client = MongoClient(COSMOS_DB_CONNECTION_STRING)
+        client = MongoClient(
+            COSMOS_DB_CONNECTION_STRING,
+            socketTimeoutMS=60000,  # 60 seconds
+            connectTimeoutMS=60000  # 60 seconds
+        )
         database = client[DATABASE_NAME]
         container = database[CONTAINER_NAME]
 

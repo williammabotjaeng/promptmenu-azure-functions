@@ -3,11 +3,16 @@ import json
 import requests
 from msal import ConfidentialClientApplication
 import azure.functions as func
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Azure AD B2C Configuration
-TENANT_ID = "AZ_TENANT_ID"  # Replace with your Azure AD B2C Tenant ID
-CLIENT_ID = "AZ_CLIENT_ID"  # Replace with your Azure AD B2C Application (Client) ID
-CLIENT_SECRET = "AZ_CLIENT_SECRET"  # Replace with your Azure AD B2C Client Secret
+TENANT_ID = os.getenv("AZ_TENANT_ID")
+CLIENT_ID = os.getenv("AZ_CLIENT_ID")
+CLIENT_SECRET = os.getenv("AZ_CLIENT_SECRET")
 GRAPH_API_SCOPE = ["https://graph.microsoft.com/.default"]
 GRAPH_API_ENDPOINT = "https://graph.microsoft.com/v1.0/users"
 
