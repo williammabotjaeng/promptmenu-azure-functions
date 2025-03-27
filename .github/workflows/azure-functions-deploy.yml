@@ -1,0 +1,35 @@
+name: Azure Functions Deployment
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on pushes to the 'main' branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'  # Use the Python version compatible with your Azure Function
+
+    # Install dependencies
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r [requirements.txt](http://_vscodecontentref_/0)
+
+    # Deploy to Azure Functions
+    - name: 'Deploy to Azure Functions'
+      uses: azure/functions-action@v1
+      with:
+        app-name: 'promptmenufunctions'  # Replace with your Azure Function App name
+        package: '.'  # Deploy the current directory
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}

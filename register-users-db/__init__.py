@@ -1,12 +1,12 @@
 import logging
 import hashlib
 import json
+import os
 import azure.functions as func
 from azure.cosmos import CosmosClient, exceptions
 
-# Cosmos DB configuration
-COSMOS_DB_URL = "COSMOS_DB_ACCOUNT_URI"  # Replace with your Cosmos DB URI
-COSMOS_DB_KEY = "COSMOS_DB_ACCOUNT_KEY"  # Replace with your Cosmos DB key
+# Load the Cosmos DB connection string from environment variables
+COSMOS_DB_CONNECTION_STRING = os.getenv("COSMOS_DB_CONNECTION_STRING")
 DATABASE_NAME = "UserDatabase"
 CONTAINER_NAME = "Users"
 
@@ -44,8 +44,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "userType": req_body["userType"]
         }
 
-        # Connect to Cosmos DB
-        client = CosmosClient(COSMOS_DB_URL, COSMOS_DB_KEY)
+        # Connect to Cosmos DB using the connection string
+        client = CosmosClient.from_connection_string(COSMOS_DB_CONNECTION_STRING)
         database = client.create_database_if_not_exists(DATABASE_NAME)
         container = database.create_container_if_not_exists(
             id=CONTAINER_NAME,
