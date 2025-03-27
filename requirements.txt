@@ -1,2 +1,10 @@
-azure-functions
-azure-cosmos
+azure-core==1.32.0
+azure-cosmos==4.9.0
+azure-functions==1.21.3
+certifi==2025.1.31
+charset-normalizer==3.4.1
+idna==3.10
+requests==2.32.3
+six==1.17.0
+typing_extensions==4.13.0
+urllib3==2.3.0
