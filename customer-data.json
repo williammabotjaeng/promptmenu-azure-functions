@@ -1,0 +1,9 @@
+{
+  "user_role": "customer",
+  "email": "testuser@example.com",
+  "displayName": "Test User",
+  "givenName": "Test",
+  "surname": "User",
+  "password": "Password123!",
+  "phoneNumber": "1234567890"
+}

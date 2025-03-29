@@ -1,0 +1,10 @@
+{
+  "user_role": "restaurant",
+  "email": "restaurant@example.com",
+  "fullname": "Restaurant Owner",
+  "password": "Password123!",
+  "phoneNumber": "1234567890",
+  "restaurantName": "Test Restaurant",
+  "address": "123 Test Street, Test City, Test Country",
+  "businessEmail": "business@example.com"
+}
